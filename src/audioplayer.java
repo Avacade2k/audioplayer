@@ -19,7 +19,7 @@ import javax.swing.JOptionPane;
   
 public class audioplayer extends JPanel implements ActionListener { 
 	
-	//declaring elements
+	//Declaring elements
 	JFrame window = new JFrame("Interface");
 	JLabel info = new JLabel("WAV AudioPlayer");
 	JButton addButton = new JButton("Add music");
@@ -40,7 +40,7 @@ public class audioplayer extends JPanel implements ActionListener {
 	long clipTime;
 	
 	audioplayer(){
-		//constructing interface, defining colors and placement
+		//Constructing interface
 		this.setBackground(Color.black);
 		window.add(this);
 		
@@ -52,6 +52,7 @@ public class audioplayer extends JPanel implements ActionListener {
 		info.setFont(new Font("",Font.ITALIC,10));
 		window.add(info, BorderLayout.PAGE_END);
 		
+		//Setting up buttons
 		addButton.setBackground(Color.black);
 		playButton.setBackground(Color.black);
 		stopButton.setBackground(Color.red);
@@ -62,12 +63,15 @@ public class audioplayer extends JPanel implements ActionListener {
 		window.add(playButton,BorderLayout.CENTER);
 		window.add(stopButton,BorderLayout.LINE_END);
 		
+		//List for loaded audio files
 		list.setBackground(Color.gray);
 		list.setForeground(Color.white);
 		window.add(list,BorderLayout.PAGE_START);
 		
+		//Filter for wav files
 		browser.setFileFilter(filter);
 		
+		//Interface window
 		window.setSize(400,200);
 		window.setLocation(200,100);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -78,7 +82,7 @@ public class audioplayer extends JPanel implements ActionListener {
 		//ae = actionEvent
 		if(ae.getSource()==addButton) {
 			returnValue = browser.showOpenDialog(window);
-			//adding music to the list
+			//Adding music to the list
 			if(returnValue == browser.APPROVE_OPTION) {
 				selectedFile = browser.getSelectedFile();
 				musics[index] = selectedFile.toString();
@@ -87,18 +91,18 @@ public class audioplayer extends JPanel implements ActionListener {
 			}
 		}
 		else if(ae.getSource() == playButton) {
-			//playing music
+			//Playing music
 			try {
 				if(list.getSelectedIndex()>=0) {
 					if(isPlaying) {
-						//pausing music if playing currently
+						//Pausing music if playing currently
 						clipTime = clip.getMicrosecondPosition();
 						clip.stop();
 						playButton.setText("Play");
 						isPlaying = false;
 					}
 					else{
-						//playing audio if not playing currently
+						//Playing audio if not playing currently
 						sound = new File(musics[list.getSelectedIndex()]);
 						inputStream = AudioSystem.getAudioInputStream(sound);
 						clip = AudioSystem.getClip();
@@ -115,7 +119,7 @@ public class audioplayer extends JPanel implements ActionListener {
 			}
 		}
 		else if(ae.getSource() == stopButton) {
-			//stops music
+			//Stops music
 			clip.stop();
 			clipTime = 0;
 			playButton.setText("Play");
