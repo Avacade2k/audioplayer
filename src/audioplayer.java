@@ -1,5 +1,6 @@
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -10,6 +11,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineEvent;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -20,56 +23,59 @@ import javax.swing.JOptionPane;
 public class audioplayer extends JPanel implements ActionListener { 
 	
 	//Declaring elements
-	JFrame window = new JFrame("Interface");
-	JLabel info = new JLabel("WAV AudioPlayer");
-	JButton addButton = new JButton("Add music");
-	JButton playButton = new JButton("Play");
-	JButton stopButton = new JButton("Stop");
-	JButton pauseButton = new JButton("Pause");
-	JComboBox list = new JComboBox();
-	JFileChooser browser = new JFileChooser();
-	FileNameExtensionFilter filter = new FileNameExtensionFilter("WAV Sound","wav");
-	int returnValue;
-	String[] musics = new String[99];
-	int index = 0;
-	File selectedFile;
-	File sound;
-	AudioInputStream inputStream;
-	Clip clip;
-	boolean isPlaying = false;
-	long clipTime;
+	static JFrame window = 	 new JFrame("Interface");
+	JLabel info = 			 new JLabel("WAV AudioPlayer");
+	static JButton[] btns =	{new JButton("Add music"), new JButton("Play"), new JButton("Stop")};
+	String[] btnCommands=   { "add", "play", "stop"}, BorderLayouts = {BorderLayout.LINE_START, BorderLayout.CENTER ,BorderLayout.LINE_END};
+	static ArrayList<String> musics1 = 	new ArrayList<>();
+	static JComboBox<String> list = 	new JComboBox<>();
+	
+	public static void setMusics1(String music) {
+		musics1.add(music);
+	}
+	public static void setList(String item) {
+		list.addItem(item);
+	}
+	public static JFrame getWindow() {
+		return window;
+	}
+	public static JComboBox<String> getList() {
+		return list;
+	}
+	public static ArrayList<String> getMusics1() {
+		return musics1;
+	}
+	public static void setplayBtn(String name) {
+		btns[1].setText(name);
+	}
+	public static void enableBtn() {
+		btns[1].setEnabled(true);
+		btns[2].setEnabled(true);
+	}
 	
 	audioplayer(){
 		//Constructing interface
 		this.setBackground(Color.black);
 		window.add(this);
-		
-		addButton.addActionListener(this);
-		playButton.addActionListener(this);
-		stopButton.addActionListener(this);
-		
-		
 		info.setFont(new Font("",Font.ITALIC,10));
 		window.add(info, BorderLayout.PAGE_END);
 		
 		//Setting up buttons
-		addButton.setBackground(Color.black);
-		playButton.setBackground(Color.black);
-		stopButton.setBackground(Color.red);
-		addButton.setForeground(Color.white);
-		playButton.setForeground(Color.white);
-		stopButton.setForeground(Color.white);
-		window.add(addButton,BorderLayout.LINE_START);
-		window.add(playButton,BorderLayout.CENTER);
-		window.add(stopButton,BorderLayout.LINE_END);
+		for (int z = 0 ; z < btns.length ; z++) {
+			btns[z].setActionCommand(btnCommands[z]);
+			btns[z].addActionListener(this);
+			if (z < 2) btns[z].setBackground(Color.black);
+			else		btns[z].setBackground(Color.red);
+			btns[z].setForeground(Color.white);
+			window.add(btns[z],BorderLayouts[z]);
+			if (z != 0) btns[z].setEnabled(false);
+			}
 		
-		//List for loaded audio files
+		list.setActionCommand("listAL");
+		list.addActionListener(this);
 		list.setBackground(Color.gray);
 		list.setForeground(Color.white);
 		window.add(list,BorderLayout.PAGE_START);
-		
-		//Filter for wav files
-		browser.setFileFilter(filter);
 		
 		//Interface window
 		window.setSize(400,200);
@@ -79,52 +85,9 @@ public class audioplayer extends JPanel implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent ae) {
-		//ae = actionEvent
-		if(ae.getSource()==addButton) {
-			returnValue = browser.showOpenDialog(window);
-			//Adding music to the list
-			if(returnValue == browser.APPROVE_OPTION) {
-				selectedFile = browser.getSelectedFile();
-				musics[index] = selectedFile.toString();
-				list.addItem("Song - "+index);
-				index++;
-			}
+		if(ae.getActionCommand() == "add")			manageBtns.addBtn();
+		else if(ae.getActionCommand() == "play")	manageBtns.playBtn();
+		else if(ae.getActionCommand() == "stop")	manageBtns.stopBtn();
+		else if(ae.getSource() == list)				manageBtns.listBtn(list.getSelectedItem());	
 		}
-		else if(ae.getSource() == playButton) {
-			//Playing music
-			try {
-				if(list.getSelectedIndex()>=0) {
-					if(isPlaying) {
-						//Pausing music if playing currently
-						clipTime = clip.getMicrosecondPosition();
-						clip.stop();
-						playButton.setText("Play");
-						isPlaying = false;
-					}
-					else{
-						//Playing audio if not playing currently
-						sound = new File(musics[list.getSelectedIndex()]);
-						inputStream = AudioSystem.getAudioInputStream(sound);
-						clip = AudioSystem.getClip();
-						clip.open(inputStream);
-						clip.setMicrosecondPosition(clipTime);
-						clip.start();
-						playButton.setText("Pause");
-						isPlaying = true;
-					}
-				}
-			}
-			catch(Exception e) {
-				JOptionPane.showMessageDialog(null, e);
-			}
-		}
-		else if(ae.getSource() == stopButton) {
-			//Stops music
-			clip.stop();
-			clipTime = 0;
-			playButton.setText("Play");
-			isPlaying = false;
-		}
-	}
-
-} 
+	} 
